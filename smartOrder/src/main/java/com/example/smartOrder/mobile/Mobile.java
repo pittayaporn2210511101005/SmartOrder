@@ -22,6 +22,7 @@ public class Mobile {
     @OneToMany(mappedBy = "mobile")
     private List<Order> orders = new ArrayList<>();
 
+
     public Mobile() {
 
     }

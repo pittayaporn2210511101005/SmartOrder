@@ -1,19 +1,19 @@
 package com.example.smartOrder.order;
 
-import com.example.smartOrder.mobile.Mobile;
-import com.example.smartOrder.orderdetails.OrderDetails;
+ import com.example.smartOrder.mobile.Mobile;
+ import com.example.smartOrder.orderdetails.OrderDetails;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table (name = "Orders")
+@Table (name = "orders")
 public class Order {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private LocalDateTime createdAt;
     private int totalSell;
 
@@ -28,11 +28,11 @@ public class Order {
 
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -59,4 +59,14 @@ public class Order {
     public void setOrderDetails(List<OrderDetails> orderDetails) {
         this.orderDetails = orderDetails;
     }
+
+    public Mobile getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(Mobile mobile) {
+        this.mobile = mobile;
+    }
 }
+
+

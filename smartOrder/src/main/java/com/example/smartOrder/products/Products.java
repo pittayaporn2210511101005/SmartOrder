@@ -3,6 +3,8 @@ package com.example.smartOrder.products;
 import com.example.smartOrder.admin.Admin;
 import com.example.smartOrder.category.Category;
 import com.example.smartOrder.stockHistory.StockHistory;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -52,11 +54,12 @@ public class Products {
     @JoinColumn(name = "admin_id",nullable = false)
     private Admin admin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"product", "orderdetails"})
     private List<StockHistory> stockHistories = new ArrayList<>();
 
     public Products(){
@@ -127,6 +130,14 @@ public class Products {
         this.updateDate = updateDate;
     }
 
+    public Admin getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Admin admin) {
+        this.admin = admin;
+    }
+
     public Category getCategory() {
         return category;
     }
@@ -134,5 +145,15 @@ public class Products {
     public void setCategory(Category category) {
         this.category = category;
     }
+
+    public List<StockHistory> getStockHistories() {
+        return stockHistories;
+    }
+
+    public void setStockHistories(List<StockHistory> stockHistories) {
+        this.stockHistories = stockHistories;
+    }
 }
+
+
 

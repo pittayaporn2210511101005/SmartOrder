@@ -2,13 +2,15 @@ package com.example.smartOrder.stockHistory;
 
 import com.example.smartOrder.orderdetails.OrderDetails;
 import com.example.smartOrder.products.Products;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "stockHistory")
+@Table(name = "stock_history")
 public class StockHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,14 +19,18 @@ public class StockHistory {
     private BigDecimal OldSellPrice;
     private BigDecimal NewCostPrice;
     private BigDecimal NewSellPrice;
-    private LocalDate changedDate;
+    private LocalDateTime changedDate;
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    private Products products;
+    private Products product;
 
     @ManyToOne
     @JoinColumn(name = "orderdetails_id",nullable = true)
     private OrderDetails orderdetails;
+
+
+    private int quantityChange; // + เพิ่ม / - ลด
+    private String type; // "SALE", "RESTOCK"
 
     public StockHistory() {
 
@@ -70,19 +76,44 @@ public class StockHistory {
         NewSellPrice = newSellPrice;
     }
 
-    public LocalDate getChangedDate() {
+    public LocalDateTime getChangedDate() {
         return changedDate;
     }
 
-    public void setChangedDate(LocalDate changedDate) {
+    public void setChangedDate(LocalDateTime changedDate) {
         this.changedDate = changedDate;
     }
 
-    public Products getProducts() {
-        return products;
+    public Products getProduct() {
+        return product;
     }
 
-    public void setProducts(Products products) {
-        this.products = products;
+    public void setProduct(Products product) {
+        this.product = product;
+    }
+
+    public OrderDetails getOrderdetails() {
+        return orderdetails;
+    }
+
+    public void setOrderdetails(OrderDetails orderdetails) {
+        this.orderdetails = orderdetails;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getQuantityChange() {
+        return quantityChange;
+    }
+
+    public void setQuantityChange(int quantityChange) {
+        this.quantityChange = quantityChange;
     }
 }
+

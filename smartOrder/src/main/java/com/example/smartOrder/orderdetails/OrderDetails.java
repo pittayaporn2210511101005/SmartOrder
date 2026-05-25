@@ -1,46 +1,40 @@
 package com.example.smartOrder.orderdetails;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.example.smartOrder.order.Order;
 import com.example.smartOrder.products.Products;
-import com.example.smartOrder.stockHistory.StockHistory;
 import jakarta.persistence.*;
 
-
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "OrderDetails")
+@Table(name = "order_details")
 public class OrderDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "orders_id",nullable = false)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
     @ManyToOne
-    @JoinColumn(name = "product_id",nullable = false)
-    private Products products;
-
-    @OneToMany(mappedBy = "orderDetails")
-    private List<StockHistory> stockHistories = new ArrayList<>();
+    @JoinColumn(name = "product_id", nullable = false)
+    private Products product;
 
     private int quantity;
     private BigDecimal sellingPrice;
     private BigDecimal totalPrice;
 
     public OrderDetails() {
-
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -52,12 +46,12 @@ public class OrderDetails {
         this.order = order;
     }
 
-    public Products getProducts() {
-        return products;
+    public Products getProduct() {
+        return product;
     }
 
-    public void setProducts(Products products) {
-        this.products = products;
+    public void setProduct(Products product) {
+        this.product = product;
     }
 
     public int getQuantity() {
@@ -67,6 +61,7 @@ public class OrderDetails {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
 
     public BigDecimal getSellingPrice() {
         return sellingPrice;

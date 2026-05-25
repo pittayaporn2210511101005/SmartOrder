@@ -1,0 +1,92 @@
+package com.example.smartOrder.mobile;
+
+import com.example.smartOrder.order.Order;
+import com.example.smartOrder.order.OrderService;
+import com.example.smartOrder.orderdetails.OrderDetails;
+import com.example.smartOrder.orderdetails.OrderDetailsRequest;
+import com.example.smartOrder.orderdetails.OrderDetailsService;
+import com.example.smartOrder.stockHistory.StockHistory;
+import com.example.smartOrder.stockHistory.StockHistoryService;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
+@RestController
+@RequestMapping("/api/mobile")
+public class MobileController {
+
+    private final OrderService orderService;
+    private final OrderDetailsService orderDetailsService;
+
+
+    public MobileController(OrderService orderService,
+                            OrderDetailsService orderDetailsService,
+                            StockHistoryService stockHistoryService) {
+        this.orderService = orderService;
+        this.orderDetailsService = orderDetailsService;
+
+    }
+
+    //มือถือสร้างออเดอร์/สร้างบิลขาย
+    @PostMapping("/orders")
+    public Order createOrder(@RequestBody Order order) {
+        return orderService.createOrder(order);
+    }
+    //มือถือดูออเดอร์ทั้งหมด
+    @GetMapping("/orders")
+    public List<Order> getAllOrders() {
+        return orderService.getAllOrders();
+    }
+    //มือถือดูออเดอร์ตามไอดี
+    @GetMapping("/orders/{id}")
+    public Order GetOrderById(@PathVariable Integer id) {
+        return orderService.getOrderById(id);
+    }
+
+    //มือถือดูออเดอร์ตามวันที่
+    // /api/mobile/orders/date?date=2026-05-22
+    @GetMapping("/orders/date")
+    public List<Order> getOrdersByDate(
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date) {
+
+        return orderService.getOrdersByDate(date);
+    }
+    // แก้ไขยอดรวมออเดอร์
+    @PutMapping("/orders/{id}")
+    public Order updateOrder(@PathVariable Integer id, @RequestBody Order order) {
+        return orderService.updateOrder(id, order);
+    }
+    // ลบออเดอร์
+    @DeleteMapping("/orders/{id}")
+    public String deleteOrder(@PathVariable Integer id) {
+        orderService.deleteOrder(id);
+        return "ลบออเดอร์สำเร็จ";
+    }
+
+    //orderdetails แล้ว
+    //เพิ่มสินค้าเข้าออเดอร์
+    @PostMapping("/orders/{orderId}/details")
+    public OrderDetails createOrderDetail(
+            @PathVariable Integer orderId,
+            @RequestBody OrderDetailsRequest request) {
+
+        return orderDetailsService.createOrderDetail(
+                orderId,
+                request.getProductId(),
+                request.getQuantity()
+        );
+    }
+    //ดูรายการสินค้าในorder
+    @GetMapping("/orders/{orderId}/details")
+    public List<OrderDetails> getDetailsByOrderId(@PathVariable Integer orderId) {
+        return orderDetailsService.getDetailsByOrderId(orderId);
+    }
+
+
+}
