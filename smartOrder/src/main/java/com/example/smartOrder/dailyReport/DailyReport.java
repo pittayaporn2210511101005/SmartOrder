@@ -2,6 +2,7 @@ package com.example.smartOrder.dailyReport;
 
 import com.example.smartOrder.Noti.Notification;
 import com.example.smartOrder.order.Order;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -12,13 +13,18 @@ import java.util.List;
 @Entity
 @Table(name = "dailyReport")
 public class DailyReport {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private BigDecimal totalCost;
-    private BigDecimal totalSell;
+
+    private BigDecimal totalCost = BigDecimal.ZERO;
+    private BigDecimal totalSell = BigDecimal.ZERO;
+
+    @Column(unique = true, nullable = false)
     private LocalDate reportDate;
-    private BigDecimal profit;
+
+    private BigDecimal profit = BigDecimal.ZERO;
     private String topSelling;
     private int totalOrders;
     private int stockRemaining;
@@ -29,13 +35,14 @@ public class DailyReport {
             joinColumns = @JoinColumn(name = "dailyreport_id"),
             inverseJoinColumns = @JoinColumn(name = "order_id")
     )
-    private List<Order> orders= new ArrayList<Order>();
+    @JsonIgnoreProperties({"dailyReport", "orderDetails"})
+    private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "dailyReport", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"dailyReport"})
     private List<Notification> notifications = new ArrayList<>();
 
     public DailyReport() {
-
     }
 
     public int getId() {
@@ -45,6 +52,7 @@ public class DailyReport {
     public void setId(int id) {
         this.id = id;
     }
+
 
     public BigDecimal getTotalCost() {
         return totalCost;
@@ -108,5 +116,13 @@ public class DailyReport {
 
     public void setOrders(List<Order> orders) {
         this.orders = orders;
+    }
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
     }
 }

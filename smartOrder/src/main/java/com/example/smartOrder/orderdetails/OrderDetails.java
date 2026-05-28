@@ -2,6 +2,7 @@ package com.example.smartOrder.orderdetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.example.smartOrder.order.Order;
 import com.example.smartOrder.products.Products;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public class OrderDetails {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnoreProperties({"stockHistories", "admin", "category"})
     private Products product;
 
     private int quantity;
