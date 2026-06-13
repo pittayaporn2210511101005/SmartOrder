@@ -42,7 +42,9 @@ public class OrderDetailsService {
                 .orElseThrow(() -> new RuntimeException("ไม่พบออเดอร์"));
 
         // หา Product
-        Products product = productRepository.findById(productId)
+        Long productIdLong = Long.valueOf(productId);
+
+        Products product = productRepository.findById(productIdLong)
                 .orElseThrow(() -> new RuntimeException("ไม่พบสินค้า"));
 
         // เช็คสต็อกหน้าร้าน

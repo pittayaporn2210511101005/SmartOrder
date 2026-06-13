@@ -5,14 +5,12 @@ import com.example.smartOrder.category.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.time.LocalDateTime;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-
 
     public ProductService(ProductRepository productRepository,
                           CategoryRepository categoryRepository) {
@@ -37,13 +35,16 @@ public class ProductService {
 
         products.setProductName(name);
 
-    if (products.getCategory() != null) {
+        if (products.getCategory() == null || products.getCategory().getId() == null) {
+            throw new IllegalArgumentException("กรุณาเลือกหมวดหมู่สินค้า!");
+        }
+
         String categoryId = products.getCategory().getId();
+
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
-        products.setCategory(category);
-    }
 
+        products.setCategory(category);
 
         return productRepository.save(products);
     }
@@ -55,42 +56,64 @@ public class ProductService {
 
     // ดึงสินค้าตาม id
     public Products getProductById(String id) {
-        return productRepository.findById(id)
+        Long productId = Long.valueOf(id);
+
+        return productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("ไม่พบID"));
     }
 
     // แก้ไขสินค้า
     public Products updateProduct(String id, Products product) {
-        Products existingProduct = productRepository.findById(id)
+        Long productId = Long.valueOf(id);
+
+        Products existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("ไม่พบID"));
 
-        existingProduct.setProductName(product.getProductName());
+        String name = product.getProductName();
+
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("ชื่อสินค้าห้ามว่าง!");
+        }
+
+        existingProduct.setProductName(name.trim());
+        existingProduct.setBuyPrice(product.getBuyPrice());
         existingProduct.setSellPrice(product.getSellPrice());
+        existingProduct.setWarehouseStock(product.getWarehouseStock());
+        existingProduct.setStoreStock(product.getStoreStock());
+        existingProduct.setMinStockQty(product.getMinStockQty());
 
-        existingProduct.setWarehouseStock(
-                product.getWarehouseStock());
+        // รูปภาพสินค้า
+        // ถ้า frontend ส่ง null มา จะไม่ลบรูปเดิม
+        // ถ้าต้องการลบรูป ให้ส่ง imageUrl เป็น "" มา
+        if (product.getImageUrl() != null) {
+            existingProduct.setImageUrl(product.getImageUrl());
+        }
 
-        existingProduct.setStoreStock(
-                product.getStoreStock());
+        // ถ้าส่ง category มา ค่อยเปลี่ยน category
+        // ถ้าไม่ส่งมา ให้ใช้ category เดิม
+        if (product.getCategory() != null && product.getCategory().getId() != null) {
+            String categoryId = product.getCategory().getId();
 
-        existingProduct.setMinStockQty(
-                product.getMinStockQty());
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        existingProduct.setCategory(
-                product.getCategory());
+            existingProduct.setCategory(category);
+        }
 
         return productRepository.save(existingProduct);
     }
 
     // ลบสินค้า
     public void deleteProduct(String id) {
-        Products product = productRepository.findById(id)
+        Long productId = Long.valueOf(id);
+
+        Products product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         productRepository.delete(product);
     }
 
-    //หาสินค้าแต่ละชนิดในประเภท
+    // หาสินค้าแต่ละชนิดในประเภท
     public List<Products> getProductsByCategoryId(String categoryId) {
         return productRepository.findByCategory_Id(categoryId);
     }
