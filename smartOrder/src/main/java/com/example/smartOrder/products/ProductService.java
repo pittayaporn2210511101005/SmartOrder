@@ -1,5 +1,7 @@
 package com.example.smartOrder.products;
 
+import com.example.smartOrder.category.Category;
+import com.example.smartOrder.category.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,19 +11,39 @@ import java.time.LocalDateTime;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+
+    public ProductService(ProductRepository productRepository,
+                          CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     // เพิ่มสินค้า
     public Products createProduct(Products products) {
-        if (productRepository.existsById(products.getId())) {
-            throw new RuntimeException("รหัสสินค้านี้มีสินค้าอยู่แล้ว!");
+
+        String name = products.getProductName();
+
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("ชื่อสินค้าห้ามว่าง!");
         }
-        LocalDateTime now = LocalDateTime.now();
-        products.setCreateDate(now);
-        products.setUpdateDate(now);
+
+        name = name.trim();
+
+        if (productRepository.existsByProductName(name)) {
+            throw new IllegalArgumentException("ชื่อสินค้านี้มีอยู่แล้ว!");
+        }
+
+        products.setProductName(name);
+
+    if (products.getCategory() != null) {
+        String categoryId = products.getCategory().getId();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        products.setCategory(category);
+    }
+
 
         return productRepository.save(products);
     }
@@ -43,10 +65,19 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("ไม่พบID"));
 
         existingProduct.setProductName(product.getProductName());
-        existingProduct.setCostPrice(product.getCostPrice());
         existingProduct.setSellPrice(product.getSellPrice());
-        existingProduct.setExpirydate(product.getExpirydate());
-        existingProduct.setCategory(product.getCategory());
+
+        existingProduct.setWarehouseStock(
+                product.getWarehouseStock());
+
+        existingProduct.setStoreStock(
+                product.getStoreStock());
+
+        existingProduct.setMinStockQty(
+                product.getMinStockQty());
+
+        existingProduct.setCategory(
+                product.getCategory());
 
         return productRepository.save(existingProduct);
     }

@@ -1,76 +1,69 @@
 package com.example.smartOrder.products;
 
-import com.example.smartOrder.admin.Admin;
 import com.example.smartOrder.category.Category;
-import com.example.smartOrder.stockHistory.StockHistory;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "products")
 public class Products {
-    @Id
-    @Column(length = 10)
-    private String id;
 
-    @Column(nullable = false, length = 50)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "product_name", nullable = false, length = 100)
     private String productName;
 
-    @Column(nullable = false)
-    private int stock;
+    @Column(name = "buy_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal buyPrice;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal costPrice;
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "sell_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal sellPrice;
 
-    private LocalDate expirydate;
+    @Column(name = "create_at", nullable = false)
+    private LocalDateTime createAt;
 
-    @Column(nullable = false)
-    private LocalDateTime createDate;
-    @Column(nullable = false)
-    private LocalDateTime updateDate;
+    @Column(name = "update_at", nullable = false)
+    private LocalDateTime updateAt;
 
-    @PrePersist
-    public void prePersist(){
-        LocalDateTime now = LocalDateTime.now();
-        if (createDate == null) createDate = now;
-        updateDate = now;
-    }
-    @PreUpdate
-    public void preUpdate(){
-        updateDate = LocalDateTime.now();
-    }
+    @Column(name = "min_stock_qty", nullable = false)
+    private int minStockQty;
 
-    @ManyToOne
-    @JoinColumn(name = "admin_id",nullable = false)
-    private Admin admin;
+    @Column(name = "warehouse_stock", nullable = false)
+    private int warehouseStock;
+
+    @Column(name = "store_stock", nullable = false)
+    private int storeStock;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"product", "orderdetails"})
-    private List<StockHistory> stockHistories = new ArrayList<>();
+    public Products() {}
 
-    public Products(){
-
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        createAt = now;
+        updateAt = now;
     }
 
-    public String getId() {
+    @PreUpdate
+    public void preUpdate() {
+        updateAt = LocalDateTime.now();
+    }
+
+    // ===== Getter Setter =====
+
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -82,20 +75,12 @@ public class Products {
         this.productName = productName;
     }
 
-    public int getStock() {
-        return stock;
+    public BigDecimal getBuyPrice() {
+        return buyPrice;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
-
-    public BigDecimal getCostPrice() {
-        return costPrice;
-    }
-
-    public void setCostPrice(BigDecimal costPrice) {
-        this.costPrice = costPrice;
+    public void setBuyPrice(BigDecimal buyPrice) {
+        this.buyPrice = buyPrice;
     }
 
     public BigDecimal getSellPrice() {
@@ -106,36 +91,44 @@ public class Products {
         this.sellPrice = sellPrice;
     }
 
-    public LocalDate getExpirydate() {
-        return expirydate;
+    public LocalDateTime getCreateAt() {
+        return createAt;
     }
 
-    public void setExpirydate(LocalDate expirydate) {
-        this.expirydate = expirydate;
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
     }
 
-    public LocalDateTime getCreateDate() {
-        return createDate;
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
-        this.createDate = createDate;
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 
-    public LocalDateTime getUpdateDate() {
-        return updateDate;
+    public int getMinStockQty() {
+        return minStockQty;
     }
 
-    public void setUpdateDate(LocalDateTime updateDate) {
-        this.updateDate = updateDate;
+    public void setMinStockQty(int minStockQty) {
+        this.minStockQty = minStockQty;
     }
 
-    public Admin getAdmin() {
-        return admin;
+    public int getWarehouseStock() {
+        return warehouseStock;
     }
 
-    public void setAdmin(Admin admin) {
-        this.admin = admin;
+    public void setWarehouseStock(int warehouseStock) {
+        this.warehouseStock = warehouseStock;
+    }
+
+    public int getStoreStock() {
+        return storeStock;
+    }
+
+    public void setStoreStock(int storeStock) {
+        this.storeStock = storeStock;
     }
 
     public Category getCategory() {
@@ -146,14 +139,9 @@ public class Products {
         this.category = category;
     }
 
-    public List<StockHistory> getStockHistories() {
-        return stockHistories;
+    @Transient
+    public int getTotalStock() {
+        return warehouseStock + storeStock;
     }
 
-    public void setStockHistories(List<StockHistory> stockHistories) {
-        this.stockHistories = stockHistories;
-    }
 }
-
-
-

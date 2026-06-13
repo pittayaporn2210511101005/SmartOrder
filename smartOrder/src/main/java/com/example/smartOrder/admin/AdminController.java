@@ -4,27 +4,44 @@ import com.example.smartOrder.category.Category;
 import com.example.smartOrder.category.CategoryService;
 import com.example.smartOrder.products.ProductService;
 import com.example.smartOrder.products.Products;
-import com.example.smartOrder.stockHistory.StockHistory;
-import com.example.smartOrder.stockHistory.StockHistoryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
-    private final StockHistoryService stockHistoryService;
+
 
     public AdminController(
             ProductService productService,
-            CategoryService categoryService,
-            StockHistoryService stockHistoryService) {
+            CategoryService categoryService){
         this.productService = productService;
         this.categoryService = categoryService;
-        this.stockHistoryService = stockHistoryService;
+    }
+
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @PostMapping("/login")
+    public String login(@RequestBody Admin request){
+        Admin admin = adminRepository.findByUsername(request.getUsername());
+        if(admin == null){
+            return "ไม่พบผู้ใช้";
+        }
+        if(!admin.getPassword().equals(request.getPassword())){
+            return "รหัสผ่านไม่ถูกต้อง";
+        }
+        return "success";
+    }
+    @PostMapping("/admins")
+    public Admin createAdmin(@RequestBody Admin admin){
+        return adminRepository.save(admin);
     }
     //สินค้า
     // เพิ่มสินค้า

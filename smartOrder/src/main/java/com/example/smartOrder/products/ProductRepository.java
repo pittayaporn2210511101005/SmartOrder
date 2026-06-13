@@ -10,7 +10,13 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Products, String> {
 
     List<Products> findByCategory_Id(String categoryId);
-
-    @Query("SELECT COALESCE(SUM(p.stock), 0) FROM Products p")
+    boolean existsByProductName(String productName);
+    @Query("""
+SELECT COALESCE(
+SUM(p.warehouseStock + p.storeStock),
+0
+)
+FROM Products p
+""")
     Long sumAllStock();
 }

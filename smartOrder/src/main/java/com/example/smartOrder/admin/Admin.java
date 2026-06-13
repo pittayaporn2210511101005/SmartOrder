@@ -18,9 +18,6 @@ public class Admin {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @OneToMany(mappedBy = "admin")
-    private List<Products> Products = new ArrayList<>();
-
     public Admin(){
     }
 

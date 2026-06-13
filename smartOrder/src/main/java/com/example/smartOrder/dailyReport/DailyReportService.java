@@ -66,13 +66,6 @@ public class DailyReportService {
 
                 if (product != null) {
 
-                    BigDecimal costPrice = product.getCostPrice() != null
-                            ? product.getCostPrice()
-                            : BigDecimal.ZERO;
-
-                    BigDecimal costTotal = costPrice.multiply(BigDecimal.valueOf(quantity));
-
-                    totalCost = totalCost.add(costTotal);
 
                     String productName = product.getProductName();
 
@@ -84,16 +77,13 @@ public class DailyReportService {
             }
         }
 
-        BigDecimal profit = totalSell.subtract(totalCost);
+        BigDecimal profit = totalSell;
 
         String topSelling = productSalesMap.entrySet()
                 .stream()
                 .max(Map.Entry.comparingByValue())
                 .map(entry -> entry.getKey() + " (" + entry.getValue() + " ชิ้น)")
                 .orElse("-");
-
-        Long stockSum = productRepository.sumAllStock();
-        int stockRemaining = stockSum != null ? stockSum.intValue() : 0;
 
         DailyReport report = dailyReportRepository.findByReportDate(date)
                 .orElse(new DailyReport());
@@ -104,7 +94,6 @@ public class DailyReportService {
         report.setProfit(profit);
         report.setTopSelling(topSelling);
         report.setTotalOrders(orders.size());
-        report.setStockRemaining(stockRemaining);
 
         report.getOrders().clear();
         report.getOrders().addAll(orders);

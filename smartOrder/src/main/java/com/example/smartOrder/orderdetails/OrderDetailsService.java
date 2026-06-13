@@ -4,7 +4,6 @@ import com.example.smartOrder.order.Order;
 import com.example.smartOrder.order.OrderRepository;
 import com.example.smartOrder.products.ProductRepository;
 import com.example.smartOrder.products.Products;
-import com.example.smartOrder.stockHistory.StockHistoryService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,20 +15,23 @@ public class OrderDetailsService {
     private final OrderDetailsRepository orderDetailsRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    private final StockHistoryService stockHistoryService;
 
-    public OrderDetailsService(OrderDetailsRepository orderDetailsRepository,
-                               OrderRepository orderRepository,
-                               ProductRepository productRepository,
-                               StockHistoryService stockHistoryService) {
+    public OrderDetailsService(
+            OrderDetailsRepository orderDetailsRepository,
+            OrderRepository orderRepository,
+            ProductRepository productRepository
+    ) {
         this.orderDetailsRepository = orderDetailsRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
-        this.stockHistoryService = stockHistoryService;
     }
 
     // เพิ่มรายการสินค้าเข้าออเดอร์
-    public OrderDetails createOrderDetail(Integer orderId, String productId, int quantity) {
+    public OrderDetails createOrderDetail(
+            Integer orderId,
+            String productId,
+            int quantity
+    ) {
 
         if (quantity <= 0) {
             throw new RuntimeException("จำนวนสินค้าต้องมากกว่า 0");
@@ -43,23 +45,27 @@ public class OrderDetailsService {
         Products product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("ไม่พบสินค้า"));
 
-        // ตรวจสอบ stock
-        if (product.getStock() < quantity) {
-            throw new RuntimeException("สินค้า " + product.getProductName() + " มีไม่เพียงพอ");
+        // เช็คสต็อกหน้าร้าน
+        if (product.getStoreStock() < quantity) {
+            throw new RuntimeException(
+                    "สินค้า " + product.getProductName() + " มีไม่เพียงพอ"
+            );
         }
 
-        // ลด stock
-        product.setStock(product.getStock() - quantity);
-        productRepository.save(product);
+        // ตัดสต็อกหน้าร้าน
+        product.setStoreStock(
+                product.getStoreStock() - quantity
+        );
 
-        // บันทึก StockHistory
-        stockHistoryService.recordStockChange(product, -quantity, "SALE");
+        productRepository.save(product);
 
         // คำนวณราคา
         BigDecimal sellingPrice = product.getSellPrice();
-        BigDecimal totalPrice = sellingPrice.multiply(BigDecimal.valueOf(quantity));
 
-        // สร้าง OrderDetails
+        BigDecimal totalPrice =
+                sellingPrice.multiply(BigDecimal.valueOf(quantity));
+
+        // สร้าง OrderDetail
         OrderDetails detail = new OrderDetails();
         detail.setOrder(order);
         detail.setProduct(product);
@@ -67,27 +73,31 @@ public class OrderDetailsService {
         detail.setSellingPrice(sellingPrice);
         detail.setTotalPrice(totalPrice);
 
-        OrderDetails savedDetail = orderDetailsRepository.save(detail);
+        OrderDetails savedDetail =
+                orderDetailsRepository.save(detail);
 
-        // อัปเดต totalSell ของ Order
-        order.setTotalSell(order.getTotalSell() + totalPrice.intValue());
+        // อัปเดตยอดขายรวมของ Order
+        order.setTotalSell(
+                order.getTotalSell() + totalPrice.intValue()
+        );
+
         orderRepository.save(order);
 
         return savedDetail;
     }
 
-    // ดูรายละเอียดสินค้าทั้งหมดในออเดอร์นั้น
+    // ดูรายการสินค้าในออเดอร์
     public List<OrderDetails> getDetailsByOrderId(Integer orderId) {
         return orderDetailsRepository.findByOrder_Id(orderId);
     }
 
-    // ดู OrderDetails ตาม id
+    // ดูรายละเอียดตาม id
     public OrderDetails getOrderDetailById(Integer id) {
         return orderDetailsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ไม่พบรายละเอียดออเดอร์"));
     }
 
-    // ลบรายการสินค้าออกจากออเดอร์
+    // ลบรายการสินค้า
     public void deleteOrderDetail(Integer id) {
         OrderDetails detail = orderDetailsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ไม่พบรายละเอียดออเดอร์"));

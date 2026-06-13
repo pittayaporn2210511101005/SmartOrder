@@ -27,7 +27,6 @@ public class DailyReport {
     private BigDecimal profit = BigDecimal.ZERO;
     private String topSelling;
     private int totalOrders;
-    private int stockRemaining;
 
     @OneToMany
     @JoinTable(
@@ -100,14 +99,6 @@ public class DailyReport {
 
     public void setTotalOrders(int totalOrders) {
         this.totalOrders = totalOrders;
-    }
-
-    public int getStockRemaining() {
-        return stockRemaining;
-    }
-
-    public void setStockRemaining(int stockRemaining) {
-        this.stockRemaining = stockRemaining;
     }
 
     public List<Order> getOrders() {

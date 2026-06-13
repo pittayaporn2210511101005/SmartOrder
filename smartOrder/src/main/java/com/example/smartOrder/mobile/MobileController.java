@@ -7,8 +7,6 @@ import com.example.smartOrder.order.OrderService;
 import com.example.smartOrder.orderdetails.OrderDetails;
 import com.example.smartOrder.orderdetails.OrderDetailsRequest;
 import com.example.smartOrder.orderdetails.OrderDetailsService;
-import com.example.smartOrder.stockHistory.StockHistory;
-import com.example.smartOrder.stockHistory.StockHistoryService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,17 +21,14 @@ public class MobileController {
 
     private final OrderService orderService;
     private final OrderDetailsService orderDetailsService;
-    private final StockHistoryService stockHistoryService;
     private final DailyReportService dailyReportService;
 
 
     public MobileController(OrderService orderService,
                             OrderDetailsService orderDetailsService,
-                            StockHistoryService stockHistoryService,
                             DailyReportService dailyReportService) {
         this.orderService = orderService;
         this.orderDetailsService = orderDetailsService;
-        this.stockHistoryService = stockHistoryService;
         this.dailyReportService = dailyReportService;
 
     }
