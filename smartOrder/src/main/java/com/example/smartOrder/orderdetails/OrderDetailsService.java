@@ -30,44 +30,65 @@ public class OrderDetailsService {
     public OrderDetails createOrderDetail(
             Integer orderId,
             String productId,
-            int quantity
+            int quantity,
+            String stockType
     ) {
-
         if (quantity <= 0) {
             throw new RuntimeException("จำนวนสินค้าต้องมากกว่า 0");
         }
 
-        // หา Order
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("ไม่พบออเดอร์"));
 
-        // หา Product
         Long productIdLong = Long.valueOf(productId);
 
         Products product = productRepository.findById(productIdLong)
                 .orElseThrow(() -> new RuntimeException("ไม่พบสินค้า"));
 
-        // เช็คสต็อกหน้าร้าน
-        if (product.getStoreStock() < quantity) {
-            throw new RuntimeException(
-                    "สินค้า " + product.getProductName() + " มีไม่เพียงพอ"
-            );
+        if (stockType == null || stockType.isBlank()) {
+            stockType = "store";
         }
 
-        // ตัดสต็อกหน้าร้าน
-        product.setStoreStock(
-                product.getStoreStock() - quantity
-        );
+        int warehouseStock = product.getWarehouseStock();
+        int storeStock = product.getStoreStock();
+
+        if (stockType.equals("warehouse")) {
+            if (warehouseStock < quantity) {
+                throw new RuntimeException(
+                        "สินค้า " + product.getProductName() +
+                                " ในโกดังไม่เพียงพอ"
+                );
+            }
+
+            product.setWarehouseStock(warehouseStock - quantity);
+
+        } else {
+            int totalAvailable = storeStock + warehouseStock;
+
+            if (totalAvailable < quantity) {
+                throw new RuntimeException(
+                        "สินค้า " + product.getProductName() +
+                                " ไม่เพียงพอ หน้าร้านมี " + storeStock +
+                                " ชิ้น โกดังมี " + warehouseStock + " ชิ้น"
+                );
+            }
+
+            if (storeStock >= quantity) {
+                product.setStoreStock(storeStock - quantity);
+            } else {
+                int needFromWarehouse = quantity - storeStock;
+
+                product.setStoreStock(0);
+                product.setWarehouseStock(warehouseStock - needFromWarehouse);
+            }
+        }
 
         productRepository.save(product);
 
-        // คำนวณราคา
         BigDecimal sellingPrice = product.getSellPrice();
-
         BigDecimal totalPrice =
                 sellingPrice.multiply(BigDecimal.valueOf(quantity));
 
-        // สร้าง OrderDetail
         OrderDetails detail = new OrderDetails();
         detail.setOrder(order);
         detail.setProduct(product);
@@ -75,14 +96,9 @@ public class OrderDetailsService {
         detail.setSellingPrice(sellingPrice);
         detail.setTotalPrice(totalPrice);
 
-        OrderDetails savedDetail =
-                orderDetailsRepository.save(detail);
+        OrderDetails savedDetail = orderDetailsRepository.save(detail);
 
-        // อัปเดตยอดขายรวมของ Order
-        order.setTotalSell(
-                order.getTotalSell() + totalPrice.intValue()
-        );
-
+        order.setTotalSell(order.getTotalSell() + totalPrice.intValue());
         orderRepository.save(order);
 
         return savedDetail;

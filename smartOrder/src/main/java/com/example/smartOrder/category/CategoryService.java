@@ -1,5 +1,6 @@
 package com.example.smartOrder.category;
 
+import com.example.smartOrder.products.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,44 +9,76 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(
+            CategoryRepository categoryRepository,
+            ProductRepository productRepository
+    ) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
     }
 
-    // เพิ่มประเภทสินค้า
     public Category createCategory(Category category) {
-        if (categoryRepository.existsById(category.getId())) {
-            throw new RuntimeException("!รหัสสินค้าของคุณซ้ำ!");
+        if (category.getId() == null || category.getId().trim().isEmpty()) {
+            throw new RuntimeException("กรุณากรอกรหัสหมวดหมู่");
         }
+
+        if (category.getCategoryname() == null || category.getCategoryname().trim().isEmpty()) {
+            throw new RuntimeException("กรุณากรอกชื่อหมวดหมู่");
+        }
+
+        String id = category.getId().trim();
+        String name = category.getCategoryname().trim();
+
+        if (categoryRepository.existsById(id)) {
+            throw new RuntimeException("รหัสหมวดหมู่ซ้ำ");
+        }
+
+        category.setId(id);
+        category.setCategoryname(name);
+
         return categoryRepository.save(category);
     }
 
-    // ดึงประเภทสินค้าทั้งหมด
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
+
+        for (Category category : categories) {
+            long count = productRepository.countByCategory_Id(category.getId());
+            category.setProductCount((int) count);
+        }
+
+        return categories;
     }
 
-    // ดึงประเภทสินค้าตาม id
     public Category getCategoryById(String id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("คุณใส่เลขIDประเภทสินค้าผิด"));
+                .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
     }
 
-    // แก้ไขประเภทสินค้า
     public Category updateCategory(String id, Category category) {
         Category existingCategory = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("คุณใส่เลขIDประเภทสินค้าผิด"));
+                .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
 
-        existingCategory.setCategoryname(category.getCategoryname());
+        if (category.getCategoryname() == null || category.getCategoryname().trim().isEmpty()) {
+            throw new RuntimeException("กรุณากรอกชื่อหมวดหมู่");
+        }
+
+        existingCategory.setCategoryname(category.getCategoryname().trim());
 
         return categoryRepository.save(existingCategory);
     }
 
-    // ลบประเภทสินค้า
     public void deleteCategory(String id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
+
+        long productCount = productRepository.countByCategory_Id(id);
+
+        if (productCount > 0) {
+            throw new RuntimeException("ไม่สามารถลบหมวดหมู่นี้ได้ เพราะมีสินค้าอยู่ในหมวดหมู่");
+        }
 
         categoryRepository.delete(category);
     }

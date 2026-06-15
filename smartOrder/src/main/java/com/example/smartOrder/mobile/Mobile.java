@@ -1,10 +1,7 @@
 package com.example.smartOrder.mobile;
 
 import com.example.smartOrder.order.Order;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,18 +10,20 @@ import java.util.List;
 @Entity
 @Table(name = "mobile")
 public class Mobile {
+
     @Id
     private String id;
+
     private String username;
+
     private String password;
+
     private LocalDate createdAt;
 
     @OneToMany(mappedBy = "mobile")
     private List<Order> orders = new ArrayList<>();
 
-
     public Mobile() {
-
     }
 
     public String getId() {
@@ -57,5 +56,13 @@ public class Mobile {
 
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }

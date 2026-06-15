@@ -4,6 +4,7 @@ public class OrderDetailsRequest {
 
     private String productId;
     private int quantity;
+    private String stockType;
 
     public OrderDetailsRequest() {
     }
@@ -22,5 +23,14 @@ public class OrderDetailsRequest {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+
+    public String getStockType() {
+        return stockType;
+    }
+
+    public void setStockType(String stockType) {
+        this.stockType = stockType;
     }
 }

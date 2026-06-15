@@ -17,20 +17,41 @@ import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @RequestMapping("/api/mobile")
+@CrossOrigin(origins = "http://localhost:5173")
 public class MobileController {
 
+    private final MobileRepository mobileRepository;
     private final OrderService orderService;
     private final OrderDetailsService orderDetailsService;
     private final DailyReportService dailyReportService;
 
 
-    public MobileController(OrderService orderService,
-                            OrderDetailsService orderDetailsService,
-                            DailyReportService dailyReportService) {
+    public MobileController(
+            OrderService orderService,
+            OrderDetailsService orderDetailsService,
+            DailyReportService dailyReportService,
+            MobileRepository mobileRepository
+    ) {
         this.orderService = orderService;
         this.orderDetailsService = orderDetailsService;
         this.dailyReportService = dailyReportService;
+        this.mobileRepository = mobileRepository;
+    }
 
+    @PostMapping("/login")
+    public String login(@RequestBody Mobile request){
+        Mobile user =
+                mobileRepository.findByUsername(
+                        request.getUsername()
+                );
+        if(user == null){
+            return "ไม่พบผู้ใช้";
+        }
+        if(!user.getPassword()
+                .equals(request.getPassword())){
+            return "รหัสผ่านไม่ถูกต้อง";
+        }
+        return "success";
     }
 
     //มือถือสร้างออเดอร์/สร้างบิลขาย
@@ -81,7 +102,8 @@ public class MobileController {
         return orderDetailsService.createOrderDetail(
                 orderId,
                 request.getProductId(),
-                request.getQuantity()
+                request.getQuantity(),
+                request.getStockType()
         );
     }
     //ดูรายการสินค้าในorder
