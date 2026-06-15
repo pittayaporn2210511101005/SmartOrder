@@ -56,16 +56,24 @@ public class DailyReportService {
 
                 int quantity = detail.getQuantity();
 
-                BigDecimal detailTotalPrice = detail.getTotalPrice() != null
+                BigDecimal detailTotalSell = detail.getTotalPrice() != null
                         ? detail.getTotalPrice()
                         : BigDecimal.ZERO;
 
-                totalSell = totalSell.add(detailTotalPrice);
+                totalSell = totalSell.add(detailTotalSell);
 
                 Products product = detail.getProduct();
 
                 if (product != null) {
 
+                    BigDecimal buyPrice = product.getBuyPrice() != null
+                            ? product.getBuyPrice()
+                            : BigDecimal.ZERO;
+
+                    BigDecimal detailTotalCost =
+                            buyPrice.multiply(BigDecimal.valueOf(quantity));
+
+                    totalCost = totalCost.add(detailTotalCost);
 
                     String productName = product.getProductName();
 
@@ -77,7 +85,7 @@ public class DailyReportService {
             }
         }
 
-        BigDecimal profit = totalSell;
+        BigDecimal profit = totalSell.subtract(totalCost);
 
         String topSelling = productSalesMap.entrySet()
                 .stream()

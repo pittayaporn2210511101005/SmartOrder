@@ -1,5 +1,7 @@
 package com.example.smartOrder.mobile;
 
+import com.example.smartOrder.Noti.Notification;
+import com.example.smartOrder.Noti.NotificationService;
 import com.example.smartOrder.dailyReport.DailyReport;
 import com.example.smartOrder.dailyReport.DailyReportService;
 import com.example.smartOrder.order.Order;
@@ -13,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 @RestController
 @RequestMapping("/api/mobile")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -24,18 +24,21 @@ public class MobileController {
     private final OrderService orderService;
     private final OrderDetailsService orderDetailsService;
     private final DailyReportService dailyReportService;
+    private final NotificationService notificationService;
 
 
     public MobileController(
             OrderService orderService,
             OrderDetailsService orderDetailsService,
             DailyReportService dailyReportService,
-            MobileRepository mobileRepository
+            MobileRepository mobileRepository,
+            NotificationService notificationService
     ) {
         this.orderService = orderService;
         this.orderDetailsService = orderDetailsService;
         this.dailyReportService = dailyReportService;
         this.mobileRepository = mobileRepository;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("/login")
@@ -113,28 +116,33 @@ public class MobileController {
     }
 
     // dailyReport
-    @PostMapping("/daily-report/generate")
-    public DailyReport generateReport(
-            @RequestParam
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate date
-    ) {
-        return dailyReportService.generateReport(date);
-    }
-
-    @GetMapping("/daily-report")
-    public DailyReport getReportByDate(
-            @RequestParam
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate date
-    ) {
-        return dailyReportService.getReportByDate(date);
-    }
-
-    @GetMapping("/daily-report/all")
+    @GetMapping("/daily-reports")
     public List<DailyReport> getAllReports() {
         return dailyReportService.getAllReports();
     }
-}
 
+    @GetMapping("/daily-reports/today")
+    public DailyReport getTodayReport() {
+        return dailyReportService.getReportByDate(LocalDate.now());
+    }
+
+    @PostMapping("/daily-reports/generate-today")
+    public DailyReport generateTodayReport() {
+        return dailyReportService.generateReport(LocalDate.now());
+    }
+
+
+    @GetMapping("/notifications")
+    public List<Notification> getMobileNotifications() {
+        return notificationService.getMobileNotifications();
+    }
+    @GetMapping("/notifications/unread")
+    public List<Notification> getUnreadMobileNotifications() {
+        return notificationService.getUnreadMobileNotifications();
+    }
+    @PutMapping("/notifications/{id}/read")
+    public Notification markNotificationAsRead(@PathVariable Integer id) {
+        return notificationService.markAsRead(id);
+    }
+}
 
