@@ -1,5 +1,6 @@
 package com.example.smartOrder.dailyReport;
 
+import com.example.smartOrder.Noti.NotificationService;
 import com.example.smartOrder.order.Order;
 import com.example.smartOrder.order.OrderRepository;
 import com.example.smartOrder.orderdetails.OrderDetails;
@@ -21,15 +22,18 @@ public class DailyReportService {
     private final DailyReportRepository dailyReportRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final NotificationService notificationService;
 
     public DailyReportService(
             DailyReportRepository dailyReportRepository,
             OrderRepository orderRepository,
-            ProductRepository productRepository
+            ProductRepository productRepository,
+            NotificationService notificationService
     ) {
         this.dailyReportRepository = dailyReportRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -47,6 +51,11 @@ public class DailyReportService {
         Map<String, Integer> productSalesMap = new HashMap<>();
 
         for (Order order : orders) {
+
+            // นับเฉพาะออเดอร์ที่ขายสำเร็จเท่านั้น
+            if ("FAILED".equals(order.getStatus())) {
+                continue;
+            }
 
             if (order.getOrderDetails() == null) {
                 continue;
@@ -101,12 +110,19 @@ public class DailyReportService {
         report.setTotalCost(totalCost);
         report.setProfit(profit);
         report.setTopSelling(topSelling);
-        report.setTotalOrders(orders.size());
+
+        int successOrderCount = (int) orders.stream()
+                .filter(order -> !"FAILED".equals(order.getStatus()))
+                .count();
+
+        report.setTotalOrders(successOrderCount);
 
         report.getOrders().clear();
         report.getOrders().addAll(orders);
 
-        return dailyReportRepository.save(report);
+        DailyReport savedReport = dailyReportRepository.save(report);
+
+        return savedReport;
     }
 
     public DailyReport getReportByDate(LocalDate date) {

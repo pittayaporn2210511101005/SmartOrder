@@ -24,6 +24,12 @@ public class Order {
     @JoinColumn(name = "mobile_id")
     private Mobile mobile;
 
+    @Column(nullable = false)
+    private String status = "PENDING";
+
+    @Column(columnDefinition = "TEXT")
+    private String failReason;
+
     public Order() {
 
     }
@@ -66,6 +72,22 @@ public class Order {
 
     public void setMobile(Mobile mobile) {
         this.mobile = mobile;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getFailReason() {
+        return failReason;
+    }
+
+    public void setFailReason(String failReason) {
+        this.failReason = failReason;
     }
 }
 

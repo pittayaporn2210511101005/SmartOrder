@@ -4,6 +4,7 @@ import com.example.smartOrder.order.Order;
 import com.example.smartOrder.order.OrderRepository;
 import com.example.smartOrder.products.ProductRepository;
 import com.example.smartOrder.products.Products;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ public class OrderDetailsService {
     }
 
     // เพิ่มรายการสินค้าเข้าออเดอร์
+    @Transactional
     public OrderDetails createOrderDetail(
             Integer orderId,
             String productId,
@@ -52,24 +54,29 @@ public class OrderDetailsService {
         int warehouseStock = product.getWarehouseStock();
         int storeStock = product.getStoreStock();
 
-        if (stockType.equals("warehouse")) {
+        if ("warehouse".equals(stockType)) {
+            // เลือกโกดัง = ตัดเฉพาะสต๊อกโกดังเท่านั้น
             if (warehouseStock < quantity) {
                 throw new RuntimeException(
-                        "สินค้า " + product.getProductName() +
-                                " ในโกดังไม่เพียงพอ"
+                        "เลือกขายจากโกดัง: สินค้า " + product.getProductName() +
+                                " ในโกดังไม่เพียงพอ ต้องการ " + quantity +
+                                " ชิ้น แต่โกดังมี " + warehouseStock + " ชิ้น"
                 );
             }
 
             product.setWarehouseStock(warehouseStock - quantity);
 
-        } else {
+        } else if ("store".equals(stockType)) {
+            // เลือกหน้าร้าน = ตัดหน้าร้านก่อน ถ้าไม่พอค่อยดึงโกดัง
             int totalAvailable = storeStock + warehouseStock;
 
             if (totalAvailable < quantity) {
                 throw new RuntimeException(
-                        "สินค้า " + product.getProductName() +
-                                " ไม่เพียงพอ หน้าร้านมี " + storeStock +
-                                " ชิ้น โกดังมี " + warehouseStock + " ชิ้น"
+                        "เลือกขายจากหน้าร้าน: สินค้า " + product.getProductName() +
+                                " ไม่เพียงพอ ต้องการ " + quantity +
+                                " ชิ้น หน้าร้านมี " + storeStock +
+                                " ชิ้น โกดังมี " + warehouseStock +
+                                " ชิ้น รวมมี " + totalAvailable + " ชิ้น"
                 );
             }
 
@@ -81,13 +88,13 @@ public class OrderDetailsService {
                 product.setStoreStock(0);
                 product.setWarehouseStock(warehouseStock - needFromWarehouse);
             }
+
+        } else {
+            throw new RuntimeException("ประเภทสต๊อกไม่ถูกต้อง");
         }
 
-        productRepository.save(product);
-
         BigDecimal sellingPrice = product.getSellPrice();
-        BigDecimal totalPrice =
-                sellingPrice.multiply(BigDecimal.valueOf(quantity));
+        BigDecimal totalPrice = sellingPrice.multiply(BigDecimal.valueOf(quantity));
 
         OrderDetails detail = new OrderDetails();
         detail.setOrder(order);
@@ -96,9 +103,16 @@ public class OrderDetailsService {
         detail.setSellingPrice(sellingPrice);
         detail.setTotalPrice(totalPrice);
 
+        productRepository.save(product);
+
         OrderDetails savedDetail = orderDetailsRepository.save(detail);
 
-        order.setTotalSell(order.getTotalSell() + totalPrice.intValue());
+        int newTotalSell = order.getTotalSell() + totalPrice.intValue();
+
+        order.setTotalSell(newTotalSell);
+        order.setStatus("SUCCESS");
+        order.setFailReason(null);
+
         orderRepository.save(order);
 
         return savedDetail;

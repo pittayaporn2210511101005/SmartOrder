@@ -1,5 +1,6 @@
 package com.example.smartOrder.Noti;
 
+import com.example.smartOrder.dailyReport.DailyReport;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,25 @@ public class NotificationService {
 
         notification.setRead(true);
         notification.setReadAt(LocalDateTime.now());
+
+        return notificationRepository.save(notification);
+    }
+
+    public Notification createDailyReportNotification(DailyReport report) {
+        Notification notification = new Notification();
+
+        notification.setTargetAdmin(true);
+        notification.setTargetmobile(true);
+        notification.setDateSent(LocalDateTime.now());
+        notification.setRead(false);
+        notification.setDailyReport(report);
+
+        notification.setMessage(
+                "สรุปยอดขายประจำวันที่ " + report.getReportDate() +
+                        " ยอดขายรวม ฿" + report.getTotalSell() +
+                        " กำไร ฿" + report.getProfit() +
+                        " สินค้าขายดี " + report.getTopSelling()
+        );
 
         return notificationRepository.save(notification);
     }

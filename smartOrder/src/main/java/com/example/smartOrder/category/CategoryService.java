@@ -20,23 +20,14 @@ public class CategoryService {
     }
 
     public Category createCategory(Category category) {
-        if (category.getId() == null || category.getId().trim().isEmpty()) {
-            throw new RuntimeException("กรุณากรอกรหัสหมวดหมู่");
-        }
 
-        if (category.getCategoryname() == null || category.getCategoryname().trim().isEmpty()) {
+        if (category.getCategoryname() == null ||
+                category.getCategoryname().trim().isEmpty()) {
             throw new RuntimeException("กรุณากรอกชื่อหมวดหมู่");
         }
 
-        String id = category.getId().trim();
-        String name = category.getCategoryname().trim();
-
-        if (categoryRepository.existsById(id)) {
-            throw new RuntimeException("รหัสหมวดหมู่ซ้ำ");
-        }
-
-        category.setId(id);
-        category.setCategoryname(name);
+        category.setId(null);
+        category.setCategoryname(category.getCategoryname().trim());
 
         return categoryRepository.save(category);
     }
@@ -52,16 +43,17 @@ public class CategoryService {
         return categories;
     }
 
-    public Category getCategoryById(String id) {
+    public Category getCategoryById(Integer id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
     }
 
-    public Category updateCategory(String id, Category category) {
+    public Category updateCategory(Integer id, Category category) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
 
-        if (category.getCategoryname() == null || category.getCategoryname().trim().isEmpty()) {
+        if (category.getCategoryname() == null ||
+                category.getCategoryname().trim().isEmpty()) {
             throw new RuntimeException("กรุณากรอกชื่อหมวดหมู่");
         }
 
@@ -70,7 +62,7 @@ public class CategoryService {
         return categoryRepository.save(existingCategory);
     }
 
-    public void deleteCategory(String id) {
+    public void deleteCategory(Integer id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
 

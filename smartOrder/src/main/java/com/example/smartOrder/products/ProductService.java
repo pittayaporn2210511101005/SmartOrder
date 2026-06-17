@@ -39,11 +39,9 @@ public class ProductService {
             throw new IllegalArgumentException("กรุณาเลือกหมวดหมู่สินค้า!");
         }
 
-        String categoryId = products.getCategory().getId();
-
+        Integer categoryId = products.getCategory().getId();
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-
+                .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
         products.setCategory(category);
 
         return productRepository.save(products);
@@ -92,7 +90,7 @@ public class ProductService {
         // ถ้าส่ง category มา ค่อยเปลี่ยน category
         // ถ้าไม่ส่งมา ให้ใช้ category เดิม
         if (product.getCategory() != null && product.getCategory().getId() != null) {
-            String categoryId = product.getCategory().getId();
+            Integer categoryId = product.getCategory().getId();
 
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -114,7 +112,7 @@ public class ProductService {
     }
 
     // หาสินค้าแต่ละชนิดในประเภท
-    public List<Products> getProductsByCategoryId(String categoryId) {
+    public List<Products> getProductsByCategoryId(Integer categoryId) {
         return productRepository.findByCategory_Id(categoryId);
     }
 }

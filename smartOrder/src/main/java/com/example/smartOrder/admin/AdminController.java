@@ -87,17 +87,17 @@ public class AdminController {
     }
     // ดูประเภทสินค้าตาม id
     @GetMapping("/categories/{id}/products")
-    public List<Products> getProductsByCategoryId(@PathVariable String id) {
+    public List<Products> getProductsByCategoryId(@PathVariable Integer id) {
         return productService.getProductsByCategoryId(id);
     }
     // แก้ไขประเภทสินค้า
     @PutMapping("/categories/{id}")
-    public Category updateCategory(@PathVariable String id, @RequestBody Category category) {
+    public Category updateCategory(@PathVariable Integer id, @RequestBody Category category) {
         return categoryService.updateCategory(id, category);
     }
     // ลบประเภทสินค้า
     @DeleteMapping("/categories/{id}")
-    public String deleteCategory(@PathVariable String id) {
+    public String deleteCategory(@PathVariable Integer id) {
         categoryService.deleteCategory(id);
         return "ลบประเภทสินค้าสำเร็จ";
     }

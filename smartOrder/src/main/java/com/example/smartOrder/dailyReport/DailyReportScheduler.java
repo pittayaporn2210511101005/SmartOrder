@@ -5,8 +5,10 @@ import com.example.smartOrder.Noti.NotificationRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Component
 public class DailyReportScheduler {
@@ -22,11 +24,22 @@ public class DailyReportScheduler {
         this.notificationRepository = notificationRepository;
     }
 
-    @Scheduled(cron = "0 0 21 * * *", zone = "Asia/Bangkok")
+    // ทำงานทุกวันเวลา 21:00 ตามเวลาไทย
+    @Scheduled(cron = "0 2 19 * * *", zone = "Asia/Bangkok")
     public void generateDailyReportAtNight() {
         LocalDate today = LocalDate.now();
 
+        boolean alreadyCreatedToday =
+                notificationRepository.existsByDailyReport_ReportDateAndTargetmobileTrue(today);
+
+        if (alreadyCreatedToday) {
+            System.out.println("วันนี้สร้างแจ้งเตือนสรุปยอดขายไปแล้ว : " + today);
+            return;
+        }
+
         DailyReport report = dailyReportService.generateReport(today);
+
+        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("th", "TH"));
 
         Notification notification = new Notification();
 
@@ -39,11 +52,9 @@ public class DailyReportScheduler {
 
         notification.setMessage(
                 "สรุปยอดขายประจำวันที่ " + today +
-                        "\nจำนวนออเดอร์: " + report.getTotalOrders() + " รายการ" +
-                        "\nยอดขายรวม: " + report.getTotalSell() + " บาท" +
-                        "\nต้นทุนรวม: " + report.getTotalCost() + " บาท" +
-                        "\nกำไรรวม: " + report.getProfit() + " บาท" +
-                        "\nสินค้าขายดี: " + report.getTopSelling()
+                        " ยอดขาย ฿" + nf.format(report.getTotalSell()) +
+                        " ต้นทุน ฿" + nf.format(report.getTotalCost()) +
+                        " กำไร ฿" + nf.format(report.getProfit())
         );
 
         notificationRepository.save(notification);
