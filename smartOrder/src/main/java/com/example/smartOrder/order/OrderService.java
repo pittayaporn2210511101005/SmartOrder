@@ -17,16 +17,13 @@ public class OrderService {
 
     // เพิ่มออเดอร์
     public Order createOrder(Order order) {
-
         if (order.getTotalSell() < 0) {
             throw new RuntimeException("ยอดขายรวมต้องไม่ติดลบ");
         }
-
         order.setCreatedAt(LocalDateTime.now());
         order.setTotalSell(0);
         order.setStatus("PENDING");
         order.setFailReason(null);
-
         return orderRepository.save(order);
     }
 

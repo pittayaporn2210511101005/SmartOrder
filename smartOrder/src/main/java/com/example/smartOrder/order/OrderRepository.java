@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
-    // หาออเดอร์ตามช่วงวันที่
+
     List<Order> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     @EntityGraph(attributePaths = {"orderDetails", "orderDetails.product"})

@@ -18,41 +18,32 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
-    // เพิ่มสินค้า
     public Products createProduct(Products products) {
-
         String name = products.getProductName();
-
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("ชื่อสินค้าห้ามว่าง!");
         }
-
         name = name.trim();
-
         if (productRepository.existsByProductName(name)) {
             throw new IllegalArgumentException("ชื่อสินค้านี้มีอยู่แล้ว!");
         }
-
         products.setProductName(name);
-
         if (products.getCategory() == null || products.getCategory().getId() == null) {
             throw new IllegalArgumentException("กรุณาเลือกหมวดหมู่สินค้า!");
         }
-
         Integer categoryId = products.getCategory().getId();
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
         products.setCategory(category);
-
         return productRepository.save(products);
     }
 
-    // ดึงสินค้าทั้งหมด
+
     public List<Products> getAllProducts() {
         return productRepository.findAll();
     }
 
-    // ดึงสินค้าตาม id
+
     public Products getProductById(String id) {
         Long productId = Long.valueOf(id);
 
@@ -60,7 +51,7 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("ไม่พบID"));
     }
 
-    // แก้ไขสินค้า
+
     public Products updateProduct(String id, Products product) {
         Long productId = Long.valueOf(id);
 
@@ -72,7 +63,6 @@ public class ProductService {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("ชื่อสินค้าห้ามว่าง!");
         }
-
         existingProduct.setProductName(name.trim());
         existingProduct.setBuyPrice(product.getBuyPrice());
         existingProduct.setSellPrice(product.getSellPrice());
@@ -101,7 +91,7 @@ public class ProductService {
         return productRepository.save(existingProduct);
     }
 
-    // ลบสินค้า
+
     public void deleteProduct(String id) {
         Long productId = Long.valueOf(id);
 
@@ -111,7 +101,7 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-    // หาสินค้าแต่ละชนิดในประเภท
+
     public List<Products> getProductsByCategoryId(Integer categoryId) {
         return productRepository.findByCategory_Id(categoryId);
     }

@@ -24,8 +24,7 @@ public class DailyReportScheduler {
         this.notificationRepository = notificationRepository;
     }
 
-    // ทำงานทุกวันเวลา 21:00 ตามเวลาไทย
-    @Scheduled(cron = "0 2 19 * * *", zone = "Asia/Bangkok")
+    @Scheduled(cron = "0 0 21 * * *", zone = "Asia/Bangkok")
     public void generateDailyReportAtNight() {
         LocalDate today = LocalDate.now();
 

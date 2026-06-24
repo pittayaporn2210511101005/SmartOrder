@@ -59,25 +59,23 @@ public class MobileController {
         return "success";
     }
 
-    // มือถือสร้างออเดอร์ / สร้างบิลขาย
+
     @PostMapping("/orders")
     public Order createOrder(@RequestBody Order order) {
         return orderService.createOrder(order);
     }
-
-    // มือถือดูออเดอร์ทั้งหมด
     @GetMapping("/orders")
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
     }
-
-    // มือถือดูออเดอร์ตามไอดี
     @GetMapping("/orders/{id}")
     public Order getOrderById(@PathVariable Integer id) {
         return orderService.getOrderById(id);
     }
-
-    // มือถือดูออเดอร์ตามวันที่
+    @GetMapping("/orders/{orderId}/details")// ดูรายการสินค้าใน order
+    public List<OrderDetails> getDetailsByOrderId(@PathVariable Integer orderId) {
+        return orderDetailsService.getDetailsByOrderId(orderId);
+    }
     // /api/mobile/orders/date?date=2026-05-22
     @GetMapping("/orders/date")
     public List<Order> getOrdersByDate(
@@ -87,20 +85,6 @@ public class MobileController {
     ) {
         return orderService.getOrdersByDate(date);
     }
-
-    // แก้ไขยอดรวมออเดอร์
-    @PutMapping("/orders/{id}")
-    public Order updateOrder(@PathVariable Integer id, @RequestBody Order order) {
-        return orderService.updateOrder(id, order);
-    }
-
-    // ลบออเดอร์
-    @DeleteMapping("/orders/{id}")
-    public String deleteOrder(@PathVariable Integer id) {
-        orderService.deleteOrder(id);
-        return "ลบออเดอร์สำเร็จ";
-    }
-
     // เพิ่มสินค้าเข้าออเดอร์
     @PostMapping("/orders/{orderId}/details")
     public ResponseEntity<?> createOrderDetail(
@@ -127,10 +111,31 @@ public class MobileController {
         }
     }
 
-    // ดูรายการสินค้าใน order
-    @GetMapping("/orders/{orderId}/details")
-    public List<OrderDetails> getDetailsByOrderId(@PathVariable Integer orderId) {
-        return orderDetailsService.getDetailsByOrderId(orderId);
+    @GetMapping("/notifications")
+    public List<Notification> getMobileNotifications() {
+        return notificationService.getMobileNotifications();
+    }
+    @GetMapping("/notifications/unread")
+    public List<Notification> getUnreadMobileNotifications() {
+        return notificationService.getUnreadMobileNotifications();
+    }
+    @PutMapping("/notifications/{id}/read")
+    public Notification markNotificationAsRead(@PathVariable Integer id) {
+        return notificationService.markAsRead(id);
+    }
+
+
+
+    // แก้ไขยอดรวมออเดอร์
+    @PutMapping("/orders/{id}")
+    public Order updateOrder(@PathVariable Integer id, @RequestBody Order order) {
+        return orderService.updateOrder(id, order);
+    }
+    // ลบออเดอร์
+    @DeleteMapping("/orders/{id}")
+    public String deleteOrder(@PathVariable Integer id) {
+        orderService.deleteOrder(id);
+        return "ลบออเดอร์สำเร็จ";
     }
 
     // dailyReport
@@ -149,18 +154,5 @@ public class MobileController {
         return dailyReportService.generateReport(LocalDate.now());
     }
 
-    @GetMapping("/notifications")
-    public List<Notification> getMobileNotifications() {
-        return notificationService.getMobileNotifications();
-    }
 
-    @GetMapping("/notifications/unread")
-    public List<Notification> getUnreadMobileNotifications() {
-        return notificationService.getUnreadMobileNotifications();
-    }
-
-    @PutMapping("/notifications/{id}/read")
-    public Notification markNotificationAsRead(@PathVariable Integer id) {
-        return notificationService.markAsRead(id);
-    }
 }

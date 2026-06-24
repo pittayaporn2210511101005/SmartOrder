@@ -4,7 +4,6 @@ import com.example.smartOrder.category.Category;
 import com.example.smartOrder.category.CategoryService;
 import com.example.smartOrder.products.ProductService;
 import com.example.smartOrder.products.Products;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,20 +12,18 @@ import java.util.List;
 @RequestMapping("/api/admin")
 @CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
-
     private final ProductService productService;
     private final CategoryService categoryService;
-
+    private final AdminRepository adminRepository;
 
     public AdminController(
             ProductService productService,
-            CategoryService categoryService){
+            CategoryService categoryService,
+            AdminRepository adminRepository) {
         this.productService = productService;
         this.categoryService = categoryService;
+        this.adminRepository = adminRepository;
     }
-
-    @Autowired
-    private AdminRepository adminRepository;
 
     @PostMapping("/login")
     public String login(@RequestBody Admin request){
@@ -43,28 +40,28 @@ public class AdminController {
     public Admin createAdmin(@RequestBody Admin admin){
         return adminRepository.save(admin);
     }
-    //สินค้า
-    // เพิ่มสินค้า
+
     @PostMapping("/products")
     public Products createProduct(@RequestBody Products products) {
         return productService.createProduct(products);
     }
-    // ดึงสินค้าทั้งหมด
     @GetMapping("/products")
     public List<Products> getAllProducts() {
         return productService.getAllProducts();
     }
-    // ดึงสินค้าตาม id
     @GetMapping("/products/{id}")
     public Products getProductById(@PathVariable String id) {
         return productService.getProductById(id);
     }
-    // แก้ไขสินค้า
+
+
     @PutMapping("/products/{id}")
     public Products updateProduct(@PathVariable String id, @RequestBody Products products) {
         return productService.updateProduct(id, products);
     }
-    // ลบสินค้า
+
+
+
     @DeleteMapping("/products/{id}")
     public String deleteProduct(@PathVariable String id) {
         productService.deleteProduct(id);
