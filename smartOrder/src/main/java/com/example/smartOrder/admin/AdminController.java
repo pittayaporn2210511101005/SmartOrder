@@ -5,6 +5,10 @@ import com.example.smartOrder.category.CategoryService;
 import com.example.smartOrder.products.ProductService;
 import com.example.smartOrder.products.Products;
 import org.springframework.web.bind.annotation.*;
+import com.example.smartOrder.order.MockOrderRequest;
+import com.example.smartOrder.order.Order;
+import com.example.smartOrder.order.OrderService;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -15,13 +19,17 @@ public class AdminController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final AdminRepository adminRepository;
+    private final OrderService orderService;
 
     public AdminController(
-            ProductService productService,
             CategoryService categoryService,
-            AdminRepository adminRepository) {
-        this.productService = productService;
+            ProductService productService,
+            OrderService orderService,
+            AdminRepository adminRepository
+    ) {
         this.categoryService = categoryService;
+        this.productService = productService;
+        this.orderService = orderService;
         this.adminRepository = adminRepository;
     }
 
@@ -66,6 +74,12 @@ public class AdminController {
     public String deleteProduct(@PathVariable String id) {
         productService.deleteProduct(id);
         return "ลบสินค้าสำเร็จปิ้วๆ";
+    }
+
+    @PostMapping("/mock-orders")
+    public ResponseEntity<?> createMockOrder(@RequestBody MockOrderRequest request) {
+        Order order = orderService.createMockOrder(request);
+        return ResponseEntity.ok(order);
     }
 
 
