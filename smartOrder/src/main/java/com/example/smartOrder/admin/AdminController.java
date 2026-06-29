@@ -33,17 +33,7 @@ public class AdminController {
         this.adminRepository = adminRepository;
     }
 
-    @PostMapping("/login")
-    public String login(@RequestBody Admin request){
-        Admin admin = adminRepository.findByUsername(request.getUsername());
-        if(admin == null){
-            return "ไม่พบผู้ใช้";
-        }
-        if(!admin.getPassword().equals(request.getPassword())){
-            return "รหัสผ่านไม่ถูกต้อง";
-        }
-        return "success";
-    }
+
     @PostMapping("/admins")
     public Admin createAdmin(@RequestBody Admin admin){
         return adminRepository.save(admin);
