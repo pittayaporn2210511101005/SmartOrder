@@ -16,7 +16,8 @@ public class CorsConfig {
                 registry.addMapping("/api/**")
                         .allowedOrigins(
                                 "http://localhost:5173",
-                                "https://ใส่-url-frontend-vercelของคุณ"
+                                "https://frontend-smart-order-r3us.vercel.app",
+                                "https://frontend-smart-order-r3us-gll2m9kmp.vercel.app"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
