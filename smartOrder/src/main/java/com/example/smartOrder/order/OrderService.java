@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -28,7 +29,7 @@ public class OrderService {
             throw new RuntimeException("ยอดขายรวมต้องไม่ติดลบ");
         }
 
-        order.setCreatedAt(LocalDateTime.now());
+        order.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Bangkok")));
         order.setTotalSell(0);
         order.setStatus("PENDING");
         order.setFailReason(null);
