@@ -17,7 +17,8 @@ public class CorsConfig {
                         .allowedOrigins(
                                 "http://localhost:5173",
                                 "https://frontend-smart-order-r3us.vercel.app",
-                                "https://frontend-smart-order-r3us-gll2m9kmp.vercel.app"
+                                "https://frontend-smart-order-r3us-gll2m9kmp.vercel.app",
+                                "https://frontend-smart-order-r3us-pkxq5znv2.vercel.app"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
