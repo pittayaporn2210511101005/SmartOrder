@@ -24,7 +24,7 @@ public class DailyReportScheduler {
         this.notificationRepository = notificationRepository;
     }
 
-    @Scheduled(cron = "0 0 21 * * *", zone = "Asia/Bangkok")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Bangkok")
     public void generateDailyReportAtNight() {
         LocalDate today = LocalDate.now();
 
