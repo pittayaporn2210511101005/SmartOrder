@@ -8,10 +8,13 @@ import org.springframework.stereotype.Component;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Locale;
 
 @Component
 public class DailyReportScheduler {
+
+    private static final ZoneId BANGKOK_ZONE = ZoneId.of("Asia/Bangkok");
 
     private final DailyReportService dailyReportService;
     private final NotificationRepository notificationRepository;
@@ -26,11 +29,16 @@ public class DailyReportScheduler {
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Bangkok")
     public void generateDailyReportAtNight() {
-        LocalDate reportDate = LocalDate.now().minusDays(1);
+
+        // ตอนเวลา 00:00 ของวันใหม่ ให้สร้างรายงานของเมื่อวาน
+        LocalDate reportDate =
+                LocalDate.now(BANGKOK_ZONE).minusDays(1);
 
         boolean alreadyCreated =
                 notificationRepository
-                        .existsByDailyReport_ReportDateAndTargetmobileTrue(reportDate);
+                        .existsByDailyReport_ReportDateAndTargetmobileTrue(
+                                reportDate
+                        );
 
         if (alreadyCreated) {
             System.out.println(
@@ -39,25 +47,33 @@ public class DailyReportScheduler {
             return;
         }
 
-        DailyReport report = dailyReportService.generateReport(reportDate);
+        DailyReport report =
+                dailyReportService.generateReport(reportDate);
 
-        NumberFormat nf =
-                NumberFormat.getNumberInstance(new Locale("th", "TH"));
+        NumberFormat numberFormat =
+                NumberFormat.getNumberInstance(
+                        new Locale("th", "TH")
+                );
 
         Notification notification = new Notification();
 
         notification.setTargetAdmin(false);
         notification.setTargetmobile(true);
-        notification.setDateSent(LocalDateTime.now());
+        notification.setDateSent(
+                LocalDateTime.now(BANGKOK_ZONE)
+        );
         notification.setRead(false);
         notification.setReadAt(null);
         notification.setDailyReport(report);
 
         notification.setMessage(
                 "สรุปยอดขายประจำวันที่ " + reportDate +
-                        " ยอดขาย ฿" + nf.format(report.getTotalSell()) +
-                        " ต้นทุน ฿" + nf.format(report.getTotalCost()) +
-                        " กำไร ฿" + nf.format(report.getProfit())
+                        " ยอดขาย ฿" +
+                        numberFormat.format(report.getTotalSell()) +
+                        " ต้นทุน ฿" +
+                        numberFormat.format(report.getTotalCost()) +
+                        " กำไร ฿" +
+                        numberFormat.format(report.getProfit())
         );
 
         notificationRepository.save(notification);
