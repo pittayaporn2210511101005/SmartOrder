@@ -104,12 +104,6 @@ public class AdminController {
         return categoryService.getAllCategories();
     }
 
-    @GetMapping("/categories/{id}/products")
-    public List<Products> getProductsByCategoryId(@PathVariable Integer id) {
-        return productService.getProductsByCategoryId(id);
-    }
-
-    // แก้ไขประเภทสินค้า
     @PutMapping("/categories/{id}")
     public Category updateCategory(@PathVariable Integer id, @RequestBody Category category) {
         return categoryService.updateCategory(id, category);

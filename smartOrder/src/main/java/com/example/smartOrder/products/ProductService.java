@@ -63,8 +63,6 @@ public class ProductService {
         existingProduct.setMinStockQty(product.getMinStockQty());
 
         // รูปภาพสินค้า
-        // ถ้า frontend ส่ง null มา จะไม่ลบรูปเดิม
-        // ถ้าต้องการลบรูป ให้ส่ง imageUrl เป็น "" มา
         if (product.getImageUrl() != null) {
             existingProduct.setImageUrl(product.getImageUrl());
         }
@@ -83,7 +81,6 @@ public class ProductService {
         return productRepository.save(existingProduct);
     }
 
-
     public void deleteProduct(String id) {
         Long productId = Long.valueOf(id);
 
@@ -93,8 +90,4 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-
-    public List<Products> getProductsByCategoryId(Integer categoryId) {
-        return productRepository.findByCategory_Id(categoryId);
-    }
 }

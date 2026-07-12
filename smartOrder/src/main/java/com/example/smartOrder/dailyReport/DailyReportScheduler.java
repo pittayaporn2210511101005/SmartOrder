@@ -26,19 +26,23 @@ public class DailyReportScheduler {
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Bangkok")
     public void generateDailyReportAtNight() {
-        LocalDate today = LocalDate.now();
+        LocalDate reportDate = LocalDate.now().minusDays(1);
 
-        boolean alreadyCreatedToday =
-                notificationRepository.existsByDailyReport_ReportDateAndTargetmobileTrue(today);
+        boolean alreadyCreated =
+                notificationRepository
+                        .existsByDailyReport_ReportDateAndTargetmobileTrue(reportDate);
 
-        if (alreadyCreatedToday) {
-            System.out.println("วันนี้สร้างแจ้งเตือนสรุปยอดขายไปแล้ว : " + today);
+        if (alreadyCreated) {
+            System.out.println(
+                    "สร้างแจ้งเตือนสรุปยอดขายไปแล้ว : " + reportDate
+            );
             return;
         }
 
-        DailyReport report = dailyReportService.generateReport(today);
+        DailyReport report = dailyReportService.generateReport(reportDate);
 
-        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("th", "TH"));
+        NumberFormat nf =
+                NumberFormat.getNumberInstance(new Locale("th", "TH"));
 
         Notification notification = new Notification();
 
@@ -50,7 +54,7 @@ public class DailyReportScheduler {
         notification.setDailyReport(report);
 
         notification.setMessage(
-                "สรุปยอดขายประจำวันที่ " + today +
+                "สรุปยอดขายประจำวันที่ " + reportDate +
                         " ยอดขาย ฿" + nf.format(report.getTotalSell()) +
                         " ต้นทุน ฿" + nf.format(report.getTotalCost()) +
                         " กำไร ฿" + nf.format(report.getProfit())
@@ -58,6 +62,8 @@ public class DailyReportScheduler {
 
         notificationRepository.save(notification);
 
-        System.out.println("สร้างรายงานและแจ้งเตือนมือถือแล้ว : " + today);
+        System.out.println(
+                "สร้างรายงานและแจ้งเตือนมือถือแล้ว : " + reportDate
+        );
     }
 }

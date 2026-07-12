@@ -123,11 +123,6 @@ public class OrderDetailsService {
         return orderDetailsRepository.findByOrder_Id(orderId);
     }
 
-    // ดูรายละเอียดตาม id
-    public OrderDetails getOrderDetailById(Integer id) {
-        return orderDetailsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ไม่พบรายละเอียดออเดอร์"));
-    }
 
     // ลบรายการสินค้า
     public void deleteOrderDetail(Integer id) {

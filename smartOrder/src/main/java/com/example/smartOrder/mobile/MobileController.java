@@ -68,10 +68,6 @@ public class MobileController {
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
     }
-    @GetMapping("/orders/{id}")
-    public Order getOrderById(@PathVariable Integer id) {
-        return orderService.getOrderById(id);
-    }
     @GetMapping("/orders/{orderId}/details")// ดูรายการสินค้าใน order
     public List<OrderDetails> getDetailsByOrderId(@PathVariable Integer orderId) {
         return orderDetailsService.getDetailsByOrderId(orderId);

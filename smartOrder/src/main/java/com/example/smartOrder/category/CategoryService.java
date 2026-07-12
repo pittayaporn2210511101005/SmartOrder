@@ -43,11 +43,6 @@ public class CategoryService {
         return categories;
     }
 
-    public Category getCategoryById(Integer id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
-    }
-
     public Category updateCategory(Integer id, Category category) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ไม่พบหมวดหมู่"));
@@ -56,7 +51,6 @@ public class CategoryService {
                 category.getCategoryname().trim().isEmpty()) {
             throw new RuntimeException("กรุณากรอกชื่อหมวดหมู่");
         }
-
         existingCategory.setCategoryname(category.getCategoryname().trim());
 
         return categoryRepository.save(existingCategory);

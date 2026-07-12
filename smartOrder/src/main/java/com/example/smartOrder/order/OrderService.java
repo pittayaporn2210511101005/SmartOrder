@@ -92,12 +92,6 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    // ดูออเดอร์ตาม ID
-    public Order getOrderById(Integer id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ไม่พบออเดอร์"));
-    }
-
     // ดูออเดอร์ตามวันที่
     public List<Order> getOrdersByDate(LocalDate date) {
 
