@@ -9,6 +9,8 @@ import com.example.smartOrder.order.MockOrderRequest;
 import com.example.smartOrder.order.Order;
 import com.example.smartOrder.order.OrderService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import java.util.Map;
 
 import java.util.List;
 
@@ -44,14 +46,28 @@ public class AdminController {
         }
         return "success";
     }
+
     @PostMapping("/admins")
     public Admin createAdmin(@RequestBody Admin admin){
         return adminRepository.save(admin);
     }
 
     @PostMapping("/products")
-    public Products createProduct(@RequestBody Products products) {
-        return productService.createProduct(products);
+    public ResponseEntity<?> createProduct(@RequestBody Products products) {
+        try {
+            Products savedProduct = productService.createProduct(products);
+            return ResponseEntity.ok(savedProduct);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("message", e.getMessage()));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
     @GetMapping("/products")
     public List<Products> getAllProducts() {
