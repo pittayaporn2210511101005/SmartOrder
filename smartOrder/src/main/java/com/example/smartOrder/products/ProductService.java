@@ -38,18 +38,10 @@ public class ProductService {
         return productRepository.save(products);
     }
 
-
     public List<Products> getAllProducts() {
         return productRepository.findAll();
     }
 
-
-    public Products getProductById(String id) {
-        Long productId = Long.valueOf(id);
-
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("ไม่พบID"));
-    }
 
 
     public Products updateProduct(String id, Products product) {

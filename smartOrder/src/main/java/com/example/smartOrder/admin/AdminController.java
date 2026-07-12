@@ -73,18 +73,12 @@ public class AdminController {
     public List<Products> getAllProducts() {
         return productService.getAllProducts();
     }
-    @GetMapping("/products/{id}")
-    public Products getProductById(@PathVariable String id) {
-        return productService.getProductById(id);
-    }
 
 
     @PutMapping("/products/{id}")
     public Products updateProduct(@PathVariable String id, @RequestBody Products products) {
         return productService.updateProduct(id, products);
     }
-
-
 
     @DeleteMapping("/products/{id}")
     public String deleteProduct(@PathVariable String id) {
@@ -99,24 +93,22 @@ public class AdminController {
     }
 
 
-
-
     //ประเภท
-    // เพิ่มประเภทสินค้า
     @PostMapping("/categories")
     public Category createCategory(@RequestBody Category category) {
         return categoryService.createCategory(category);
     }
-    // ดูประเภทสินค้าทั้งหมด
+
     @GetMapping("/categories")
     public List<Category> getAllCategories() {
         return categoryService.getAllCategories();
     }
-    // ดูประเภทสินค้าตาม id
+
     @GetMapping("/categories/{id}/products")
     public List<Products> getProductsByCategoryId(@PathVariable Integer id) {
         return productService.getProductsByCategoryId(id);
     }
+
     // แก้ไขประเภทสินค้า
     @PutMapping("/categories/{id}")
     public Category updateCategory(@PathVariable Integer id, @RequestBody Category category) {
