@@ -6,7 +6,6 @@ import java.util.List;
 public class MockOrderRequest {
 
     private LocalDateTime createdAt;
-    private String mobileId;
     private String stockType;
     private List<MockOrderItemRequest> items;
 
@@ -19,14 +18,6 @@ public class MockOrderRequest {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public String getMobileId() {
-        return mobileId;
-    }
-
-    public void setMobileId(String mobileId) {
-        this.mobileId = mobileId;
     }
 
     public String getStockType() {
