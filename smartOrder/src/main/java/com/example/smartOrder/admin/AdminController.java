@@ -52,6 +52,20 @@ public class AdminController {
         return adminRepository.save(admin);
     }
 
+    @DeleteMapping("/admins/{id}")
+    public ResponseEntity<?> deleteAdmin(@PathVariable Integer id) {
+
+        if (!adminRepository.existsById(id)) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("ไม่พบบัญชีแอดมิน");
+        }
+
+        adminRepository.deleteById(id);
+
+        return ResponseEntity.ok("ลบบัญชีแอดมินสำเร็จ");
+    }
+
     @PostMapping("/products")
     public ResponseEntity<?> createProduct(@RequestBody Products products) {
         try {
@@ -85,6 +99,8 @@ public class AdminController {
         productService.deleteProduct(id);
         return "ลบสินค้าสำเร็จปิ้วๆ";
     }
+
+
 
     @PostMapping("/mock-orders")
     public ResponseEntity<?> createMockOrder(@RequestBody MockOrderRequest request) {
